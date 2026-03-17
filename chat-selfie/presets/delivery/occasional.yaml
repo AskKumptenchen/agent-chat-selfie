@@ -1,0 +1,8 @@
+delivery:
+  mode: occasional
+  triggers:
+    - task_completed
+    - user_requested
+    - milestone_reached
+  cooldown:
+    minutes: 0

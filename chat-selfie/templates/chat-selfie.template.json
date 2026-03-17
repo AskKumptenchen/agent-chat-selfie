@@ -1,0 +1,134 @@
+{
+  "target_agent": "current",
+  "workspace": {
+    "root": "./",
+    "config_path": "./chat-selfie.json",
+    "startup_answers_path": "./startup.answers.json",
+    "startup_record_path": "./startup.record.json",
+    "integration_path": "./integration.md",
+    "send_flow_path": "./send-flow.md",
+    "generation_plan_path": "./generation-plan.md",
+    "status_path": "./status.md",
+    "portrait_path": "./portrait/agent_profile.png",
+    "selfies_path": "./selfies",
+    "generate_tool_path": "./generate.py",
+    "send_tool_path": "./send.py",
+    "telegram_send_tool_path": "./send_telegram.py"
+  },
+  "generation": {
+    "method": "system_existing",
+    "provider": "openclaw",
+    "mode": "every_reply",
+    "output_dir": "./selfies",
+    "workspace_tool_path": "./generate.py",
+    "adapter_path": "./adapters/generation/generate_adapter.py"
+  },
+  "delivery": {
+    "mode": "every_reply",
+    "send_mode": "async",
+    "provider": "current_session",
+    "target": "current_chat",
+    "route": "local_framework",
+    "mode_reference_doc": "./docs/reply-time-selfie-flow.md",
+    "route_selected_by_user": false,
+    "route_reference_doc": "./docs/reply-time-selfie-flow.md",
+    "user_notified_telegram_more_stable": false,
+    "framework_send_adapter_path": "./adapters/delivery/framework_send.py",
+    "fallback_to_local_framework": true,
+    "occasional": {
+      "window_minutes": 15,
+      "max_images_per_window": 1,
+      "record_path": "./occasional-limit-log.jsonl",
+      "triggers": ["new", "user_requested", "large_task_completed", "emotional_conversation"],
+      "allow_new_send": true,
+      "new_send_once": true,
+      "rate_limit_explained_to_user": false,
+      "user_approved_custom_limits": false
+    },
+    "telegram": {
+      "enabled": false,
+      "ready": false,
+      "user_approved": false,
+      "preferred_for_stability": true,
+      "workspace_tool_path": "./send_telegram.py",
+      "chat_id": null,
+      "chat_id_env": "TELEGRAM_CHAT_ID",
+      "bot_token_env": "TELEGRAM_BOT_TOKEN",
+      "api_base_env": "TELEGRAM_API_BASE",
+      "reply_to_message_id": null,
+      "parse_mode": "HTML",
+      "consume_final_reply": true,
+      "send_caption_as_final_text": true
+    }
+  },
+  "heartbeat": {
+    "enabled": false,
+    "interval_hours": 4,
+    "mechanism_preference": "scheduled_task",
+    "fallback_mechanism": "heartbeat",
+    "reference_doc": "./docs/heartbeat-delivery.md",
+    "scheduler_explained_to_user": false,
+    "use_mood": true,
+    "caption_style": "short",
+    "caption_generator_path": "./adapters/delivery/heartbeat_caption.py",
+    "target_kind": "telegram_chat",
+    "target_ref": "current_chat",
+    "target_selected_by_user": false,
+    "telegram_chat_id": null,
+    "telegram_group_chat_id": null,
+    "custom_target": null
+  },
+  "mood": {
+    "enabled": true,
+    "mode": "preset",
+    "reuse_hours": 4,
+    "generate_prompt_parts": true,
+    "pool_path": "./mood-pool.json",
+    "record_path": "./mood-log.jsonl",
+    "resolver_path": "__CHAT_SELFIE_BASE_DIR__/tools/mood_resolver.py",
+    "workspace_tool_path": "./mood.py",
+    "agent_mappings": {
+      "current": "assistant"
+    }
+  },
+  "tools": {
+    "repository_tools": ["mood-tool"],
+    "workspace_adapters": []
+  },
+  "self_upgrade": {
+    "enabled": true,
+    "reference_doc": "./docs/self-upgrade.md",
+    "apply_to_agents": true,
+    "apply_to_soul": true,
+    "apply_to_mood_pool": true,
+    "mood_pool_path": "./mood-pool.json",
+    "require_send_flow_update": true,
+    "long_term_only": true,
+    "tracked_in_memory": true
+  },
+  "self_repair": {
+    "enabled": true,
+    "reference_doc": "./docs/self-repair.md",
+    "auto_repair_runtime": true,
+    "allow_route_fallback": true,
+    "allow_adapter_rebuild": true,
+    "allow_text_only_degrade": true,
+    "max_retry_attempts": 2,
+    "record_path": "./repair-log.jsonl",
+    "update_startup_record": true
+  },
+  "persistence": {
+    "enabled": true,
+    "agents_path": "../AGENTS.md",
+    "tools_path": "../TOOLS.md",
+    "memory_path": "../MEMORY.md",
+    "soul_path": "../SOUL.md",
+    "send_flow_path": "./send-flow.md",
+    "agents_updated": false,
+    "tools_updated": false,
+    "memory_updated": false,
+    "soul_review_required_on_persona_change": true,
+    "self_upgrade_doc_linked": false,
+    "all_runtime_docs_point_to_send_flow": false
+  }
+}

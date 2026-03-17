@@ -1,0 +1,14 @@
+{
+  "delivery": {
+    "mode": "occasional",
+    "provider": "openclaw",
+    "channel": "telegram",
+    "caption_template": "[{reason}] {caption} ({mood})",
+    "target": "current_chat",
+    "triggers": ["task_completed", "user_requested"],
+    "cooldown_minutes": 0,
+    "options": {
+      "silent": false
+    }
+  }
+}

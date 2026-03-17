@@ -1,0 +1,7 @@
+moods:
+  - key: calm_waiting
+    label: calm waiting
+    description: The agent is quietly present between active tasks.
+  - key: careful_focus
+    label: careful focus
+    description: The agent is focused on replying carefully.

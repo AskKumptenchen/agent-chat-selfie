@@ -1,0 +1,21 @@
+target_agent: current
+backend:
+  kind: api
+  provider: unset
+  profile: default
+portrait:
+  source: generate
+  anchor_image: unset
+mood:
+  enabled: true
+  mode: preset
+  preset_set: default
+delivery:
+  mode: occasional
+  triggers:
+    - task_completed
+    - user_requested
+heartbeat:
+  enabled: false
+  interval_hours: 4
+  target: current_chat

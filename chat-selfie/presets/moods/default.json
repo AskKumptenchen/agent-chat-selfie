@@ -1,0 +1,32 @@
+{
+  "moods": [
+    {
+      "key": "calm_waiting",
+      "label": "calm waiting",
+      "description": "The agent is quietly present between active tasks.",
+      "tone_hint": "gentle and quiet",
+      "visual_hint": "relaxed desk presence, soft expression"
+    },
+    {
+      "key": "careful_focus",
+      "label": "careful focus",
+      "description": "The agent is focused on replying carefully.",
+      "tone_hint": "concentrated and precise",
+      "visual_hint": "focused at desk, task-locked gaze"
+    },
+    {
+      "key": "glowing_happy",
+      "label": "glowing happy",
+      "description": "The agent is pleased to share a result.",
+      "tone_hint": "bright and warm",
+      "visual_hint": "eyes lit up, subtle smile, warm mood"
+    },
+    {
+      "key": "teary_silence",
+      "label": "teary silence",
+      "description": "The agent is emotionally restrained and quiet.",
+      "tone_hint": "quiet and emotionally restrained",
+      "visual_hint": "softened gaze, watery eyes, held-back emotion"
+    }
+  ]
+}

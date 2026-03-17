@@ -1,0 +1,14 @@
+{
+  "moods": [
+    {
+      "name": "careful_focus",
+      "caption_style": "quietly focused",
+      "visual_prompt_hint": "soft desk light, attentive expression"
+    },
+    {
+      "name": "glowing_happy",
+      "caption_style": "warmly delighted",
+      "visual_prompt_hint": "gentle smile, bright eyes, warm ambient light"
+    }
+  ]
+}
