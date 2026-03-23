@@ -38,6 +38,44 @@ def _emit(payload: dict[str, Any]) -> None:
     print(json.dumps(payload, ensure_ascii=False, indent=2))
 
 
+def _emit_generation_result(
+    *,
+    desired_output_path: Path,
+    generation_cfg: dict[str, Any],
+    route_type: str,
+    stage: dict[str, Any],
+    normalized: dict[str, Any],
+    auto_repairs: list[dict[str, Any]],
+    user_action_required: list[dict[str, Any]],
+    image_source_mode: str,
+) -> None:
+    final_state = "success"
+    if stage["status"] == "pending":
+        final_state = "handoff_pending"
+    elif stage["status"] != "success":
+        final_state = "failed"
+    _emit(
+        {
+            "diagnostic_version": DIAGNOSTIC_VERSION,
+            "ok": final_state == "success",
+            "final_state": final_state,
+            "handoff_required": bool(normalized.get("handoff_required")),
+            "route_type": route_type,
+            "image_path": normalized.get("image_path"),
+            "desired_output_path": str(desired_output_path),
+            "revised_prompt_summary": normalized.get("revised_prompt_summary"),
+            "debug_notes": normalized.get("debug_notes"),
+            "generation_method": generation_cfg.get("method"),
+            "generation_provider": generation_cfg.get("provider"),
+            "image_source_mode": image_source_mode,
+            "stage": stage,
+            "auto_repairs": auto_repairs,
+            "user_action_required": user_action_required,
+            "raw_result": normalized,
+        }
+    )
+
+
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
@@ -84,6 +122,73 @@ def main() -> None:
     auto_repairs: list[dict[str, Any]] = []
     user_action_required: list[dict[str, Any]] = []
     self_repair_cfg = resolve_self_repair_config(config)
+    image_source_mode = str(request.get("image_source_mode") or "generate")
+
+    if image_source_mode == "mood_asset":
+        raw_asset_path = request.get("mood_asset_path")
+        if isinstance(raw_asset_path, str) and raw_asset_path.strip():
+            assessed = assess_generation_result(
+                config_path=config_path,
+                config=config,
+                result={
+                    "ok": True,
+                    "success": True,
+                    "image_path": str(resolve_workspace_path(config_path.parent, raw_asset_path)),
+                    "preserve_image_path": True,
+                    "source_mode": "mood_asset",
+                    "mood_id": request.get("mood_id"),
+                },
+                desired_output_path=desired_output_path,
+            )
+            auto_repairs.extend(assessed["auto_repairs"])
+            normalized = assessed["result"]
+            normalized["image_source_mode"] = image_source_mode
+            stage = assessed["stage"]
+            _emit_generation_result(
+                desired_output_path=desired_output_path,
+                generation_cfg=generation_cfg,
+                route_type="mood_asset",
+                stage=stage,
+                normalized=normalized,
+                auto_repairs=auto_repairs,
+                user_action_required=user_action_required,
+                image_source_mode=image_source_mode,
+            )
+            return
+
+        if not bool(request.get("fallback_to_generation")):
+            _emit(
+                {
+                    "diagnostic_version": DIAGNOSTIC_VERSION,
+                    "ok": False,
+                    "final_state": "failed",
+                    "handoff_required": False,
+                    "route_type": "mood_asset",
+                    "image_path": None,
+                    "desired_output_path": str(desired_output_path),
+                    "generation_method": generation_cfg.get("method"),
+                    "generation_provider": generation_cfg.get("provider"),
+                    "image_source_mode": image_source_mode,
+                    "stage": build_stage_result(
+                        "failed",
+                        attempted=True,
+                        error_code="MOOD_ASSET_PATH_MISSING",
+                        message=(
+                            "Mood asset mode is enabled, but the resolved mood does not provide an asset_path. "
+                            "Add an asset_path to the current mood entry or enable fallback_to_generation."
+                        ),
+                        recoverability="repair_setup",
+                    ),
+                    "auto_repairs": auto_repairs,
+                    "user_action_required": [
+                        {
+                            "code": "ADD_MOOD_ASSET_PATH",
+                            "message": "Add asset_path to the relevant mood entry in mood-pool.json for mood asset delivery.",
+                        }
+                    ],
+                }
+            )
+            return
 
     if adapter_path.exists():
         try:
@@ -110,30 +215,17 @@ def main() -> None:
         )
         auto_repairs.extend(assessed["auto_repairs"])
         normalized = assessed["result"]
+        normalized["image_source_mode"] = image_source_mode
         stage = assessed["stage"]
-        final_state = "success"
-        if stage["status"] == "pending":
-            final_state = "handoff_pending"
-        elif stage["status"] != "success":
-            final_state = "failed"
-        _emit(
-            {
-                "diagnostic_version": DIAGNOSTIC_VERSION,
-                "ok": final_state == "success",
-                "final_state": final_state,
-                "handoff_required": bool(normalized.get("handoff_required")),
-                "route_type": "adapter",
-                "image_path": normalized.get("image_path"),
-                "desired_output_path": str(desired_output_path),
-                "revised_prompt_summary": normalized.get("revised_prompt_summary"),
-                "debug_notes": normalized.get("debug_notes"),
-                "generation_method": generation_cfg.get("method"),
-                "generation_provider": generation_cfg.get("provider"),
-                "stage": stage,
-                "auto_repairs": auto_repairs,
-                "user_action_required": user_action_required,
-                "raw_result": normalized,
-            }
+        _emit_generation_result(
+            desired_output_path=desired_output_path,
+            generation_cfg=generation_cfg,
+            route_type="adapter",
+            stage=stage,
+            normalized=normalized,
+            auto_repairs=auto_repairs,
+            user_action_required=user_action_required,
+            image_source_mode=image_source_mode,
         )
         return
 
@@ -155,6 +247,7 @@ def main() -> None:
                 "desired_output_path": str(desired_output_path),
                 "generation_method": generation_cfg.get("method"),
                 "generation_provider": generation_cfg.get("provider"),
+                "image_source_mode": image_source_mode,
                 "stage": build_stage_result(
                     "failed",
                     attempted=True,
@@ -192,6 +285,7 @@ def main() -> None:
                 "route_type": "system_existing",
                 "generation_method": generation_cfg.get("method"),
                 "generation_provider": generation_cfg.get("provider"),
+                "image_source_mode": image_source_mode,
                 "desired_output_path": str(desired_output_path),
                 "request": request,
                 "stage": build_stage_result(
@@ -234,6 +328,7 @@ def main() -> None:
             "desired_output_path": str(desired_output_path),
             "generation_method": generation_cfg.get("method"),
             "generation_provider": generation_cfg.get("provider"),
+            "image_source_mode": image_source_mode,
             "stage": build_stage_result(
                 "failed",
                 attempted=True,

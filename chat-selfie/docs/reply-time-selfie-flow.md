@@ -58,9 +58,9 @@ If `agent mood` is disabled:
 - skip mood lookup
 - continue with persona and context only
 
-### 2. Build the image prompt
+### 2. Choose the image source
 
-The image prompt should be derived from:
+When the workspace uses real-time generation, the image prompt should be derived from:
 
 - current persona and identity
 - current mood when enabled
@@ -74,9 +74,16 @@ At minimum, the prompt should include:
 - scene or environment
 - camera or shooting angle
 
+When the workspace uses fixed mood-asset mode:
+
+- resolve mood first
+- look up the current mood entry in `mood-pool.json`
+- reuse the local `asset_path` already mapped to that mood
+- do not force a new image generation step unless the workspace explicitly enables fallback to generation
+
 ### 3. Hand off to the delivery adapter
 
-The agent should pass the prepared prompt and any needed reply context to the selected delivery route.
+The agent should pass either the prepared prompt or the resolved mood asset image path, plus any needed reply context, to the selected delivery route.
 
 If the selected route is no longer available, do not pretend the handoff succeeded. Instead, either repair setup or continue with a text-only reply.
 
@@ -89,7 +96,7 @@ Use this route when `delivery.route = local_framework`.
 The flow should be:
 
 1. resolve mood when enabled
-2. generate the image and save it under `chat-selfie/selfies/`
+2. either generate the image or resolve the local mood asset image path
 3. hand off the saved image path and final reply text to the current framework
 4. let the current framework send both to the user
 
@@ -104,7 +111,7 @@ The flow should be:
 1. call the workspace `chat-selfie/send.py` entry
 2. let that send flow resolve mood internally when needed
 3. let that send flow call `chat-selfie/generate.py`
-4. save the generated image under `chat-selfie/selfies/`
+4. let `generate.py` either produce a new image or return the local mood asset image path
 5. let that send flow call `chat-selfie/send_telegram.py`
 6. treat the Telegram photo and caption as the completed final reply for the turn
 
@@ -170,8 +177,20 @@ When reply-time selfie mode is active, the workspace should make it possible to 
 - which delivery mode is active: `async`, `sync`, or `sync_existing_capability`
 - which tool or adapter route is used for mood lookup
 - which tool or adapter route is used for generation or sending
+- which image source mode is active: real-time generation or mood asset
 - the current mood pool path
 - the current mood log path
+
+## Verification checklist
+
+At minimum, runtime verification should cover:
+
+- `local_framework + every_reply + image_source = mood_asset + valid asset_path`
+- `telegram_api + every_reply + image_source = mood_asset + valid asset_path`
+- `heartbeat + local_framework + image_source = mood_asset`
+- `heartbeat + telegram_api + image_source = mood_asset`
+- `image_source = mood_asset` but the resolved mood has no valid `asset_path`
+- `image_source = generate` still following the original real-time generation path honestly
 
 ## Rules
 
@@ -180,4 +199,5 @@ When reply-time selfie mode is active, the workspace should make it possible to 
 - Repository-owned tool contracts may guide the process, but user-owned local adapters remain the primary customization point.
 - Existing system capabilities should be reused before inventing a new custom route for the same need.
 - Generated image output should be saved under `chat-selfie/selfies/` when image generation is enabled.
+- When mood-asset mode is enabled, the runtime may reuse a pre-saved local image from the current mood entry instead of generating a new one.
 - If one required route is missing, the agent should either fall back to text-only reply or ask for setup, rather than pretending generation succeeded.

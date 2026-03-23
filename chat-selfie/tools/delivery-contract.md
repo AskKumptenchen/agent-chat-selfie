@@ -18,11 +18,13 @@ A delivery request should be able to carry:
 - caption text
 - send reason
 - metadata about the active mood or state
+- which image source mode is active: real-time generation or fixed mood asset
 
 It should also be possible to carry:
 
 - whether the current route is `local_framework` or `telegram_api`
 - whether the image has already been generated and saved locally
+- whether the image comes from a pre-existing local mood asset
 - whether this route should consume the final reply for the current turn
 
 ## Output shape
@@ -92,7 +94,7 @@ Use this route when the target agent framework can already send an image and the
 The expected behavior is:
 
 1. generate the image first
-2. save the generated image under `chat-selfie/selfies/`
+2. save the generated image under `chat-selfie/selfies/`, or reuse the mood-mapped local asset path when fixed mood-asset mode is enabled
 3. hand off the saved image path and final reply text to the current agent framework
 4. let that framework deliver the image and text to the user
 
@@ -110,7 +112,7 @@ The expected behavior is:
 
 1. call the workspace `chat-selfie/send.py` entry
 2. resolve mood inside that send flow when needed
-3. generate the image and save it under `chat-selfie/selfies/`
+3. resolve the active image source, either by generating a new image or by reusing the local asset mapped to the current mood
 4. send the image and final reply text together through Telegram Bot API
 5. treat that Telegram send as the completed user-facing reply for the turn
 

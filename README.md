@@ -71,7 +71,7 @@ Please update Chat Selfie for me.
 
 ## SKILL Features 🧩
 
-- **Visualized emotion:** Based on the context of the conversation, the agent generates a selfie that best matches the feeling of the moment.
+- **Visualized emotion:** Based on the context of the conversation, the agent can either generate a fresh selfie or reuse a mood-mapped sticker image that best matches the feeling of the moment.
 - **Heartbeat presence:** The agent no longer waits only to answer. It can proactively share how it is doing.
 - **Self-evolving persona:** As the relationship deepens, the agent keeps refining how it describes itself, so the generated images feel more and more aligned with the bond between you.
 - **Works everywhere:** It does not depend on one image stack, and can adapt to built-in image tools, online APIs, and local models.
@@ -90,6 +90,8 @@ Chat Selfie is designed to be highly customizable. An agent that integrates it i
 
 It also does not depend on one fixed image stack. Whether the agent uses built-in image generation such as OpenClaw, an external image agent or API such as Nano Banana, GPT Images, or Grok Imagine, or a local image model setup such as Stable Diffusion with LoRA workflows, Chat Selfie is designed so the agent can adapt and connect to it.
 
+When generation cost is too high for every turn, Chat Selfie can also switch to a fixed mood-asset mode. In that mode, the runtime still resolves the current mood first, but instead of generating a new image, it reuses the pre-saved local image mapped to that mood and sends it together with the reply text through the active delivery route.
+
 ## Trouble Using It? 🛠️
 
 If your agent keeps not sending images, image generation fails, image delivery fails, or it seems to have forgotten how to use the Chat Selfie skill, tell it clearly:
@@ -101,7 +103,6 @@ Please find the Chat Selfie skill's self-repair guide and inspect <your specific
 ## Roadmap 🛠️
 
 - video generation support
-- a fixed sticker-style emotion mode to replace generating a new image every time
 - more efficient and lower-cost ideas for long-term companionship workflows
 
 ## Contributing 🤝

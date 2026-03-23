@@ -89,6 +89,7 @@ Typical major branches:
 - portrait source
 - backend type
 - backend provider
+- image source mode: real-time generation or fixed mood-asset mode
 - delivery mode
 - delivery route
 - delivery target
@@ -120,31 +121,33 @@ Only switch to autonomous continuation when the user clearly grants that authori
 5. create the local `chat-selfie/` directory if needed
 6. explain the difference between a reference image and a text-generated portrait
 7. check whether the current agent already has a working image-generation route
-8. record which generation-method category this setup is using: existing system route, third-party API by API key, local model stack, or other
-9. if generation is not ready, guide the user through backend or adapter setup
-10. explain the two official delivery paths: local framework delivery and Telegram API delivery
-11. say clearly that local framework delivery is the default path, while Telegram is often more stable when image sending is unreliable
-12. ask which delivery frequency the user wants
-13. if `delivery mode = occasional`, explain the default occasional triggers and the default generation rate limit
-14. if `delivery mode = occasional`, ask whether the send triggers or rate limit should be changed
-15. ask which delivery path the user wants now and confirm that choice before writing route-specific setup
-16. if Telegram is chosen, guide the user through the required Telegram configuration and record that `docs/telegram-send-flow.md` becomes the route-specific runtime reference
-17. ask whether heartbeat push should be enabled
-18. if heartbeat is enabled, explain that scheduled tasks are preferred and heartbeat-capable triggers are the fallback path
-19. if heartbeat is enabled, ask which target location should receive the push
-20. if heartbeat is enabled, ask whether the default heartbeat interval or target settings should be changed
-21. ask whether agent mood should be enabled
-22. if agent mood is enabled, ask whether mood should follow presets or conversation context
-23. create or update `SOUL.md` so it retains the agent's personality markers, emotional baseline, and relationship tone that should guide emotional expression in context
-24. create or update `AGENTS.md` so it is a required startup read, retains the current selfie send frequency such as `every_reply` or selected moments, and tells the agent to read `chat-selfie/send-flow.md` before any send
-25. create or update `TOOLS.md` so it retains the concrete paths and invocation timing for mood, send-flow-related entries, seed helpers, send routes, and adapters
-26. create or update `chat-selfie/send-flow.md` as the environment-specific runtime source of truth for future image sends, including current mood labels and when and why they should be used
-27. ask whether the agent should stop after the current setup step or keep executing autonomously beyond it
-28. persist the final setup summary into the target agent memory files
-29. create or update references to `docs/self-upgrade.md` in the runtime memory files when persona evolution is part of the long-term setup
-30. record the result into structured workspace artifacts
-31. run the final review checklist and only mark the skill usable when every required file exists, is wired correctly, and the configured routes pass honest preflight checks
-32. clearly mark which parts are ready now and which still require user action before selfie runtime can succeed
+8. explain the difference between real-time generation and fixed mood-asset mode, then record which image source mode this setup will use
+9. record which generation-method category this setup is using: existing system route, third-party API by API key, local model stack, fixed mood assets, or other
+10. if real-time generation is selected and generation is not ready, guide the user through backend or adapter setup
+11. if fixed mood-asset mode is selected, guide the user to send the mood-mapped image files, save them under the local workspace such as `chat-selfie/stickers/`, and make sure each mood entry points to the saved file through `asset_path`
+12. explain the two official delivery paths: local framework delivery and Telegram API delivery
+13. say clearly that local framework delivery is the default path, while Telegram is often more stable when image sending is unreliable
+14. ask which delivery frequency the user wants
+15. if `delivery mode = occasional`, explain the default occasional triggers and the default generation rate limit
+16. if `delivery mode = occasional`, ask whether the send triggers or rate limit should be changed
+17. ask which delivery path the user wants now and confirm that choice before writing route-specific setup
+18. if Telegram is chosen, guide the user through the required Telegram configuration and record that `docs/telegram-send-flow.md` becomes the route-specific runtime reference
+19. ask whether heartbeat push should be enabled
+20. if heartbeat is enabled, explain that scheduled tasks are preferred and heartbeat-capable triggers are the fallback path
+21. if heartbeat is enabled, ask which target location should receive the push
+22. if heartbeat is enabled, ask whether the default heartbeat interval or target settings should be changed
+23. ask whether agent mood should be enabled
+24. if agent mood is enabled, ask whether mood should follow presets or conversation context
+25. create or update `SOUL.md` so it retains the agent's personality markers, emotional baseline, and relationship tone that should guide emotional expression in context
+26. create or update `AGENTS.md` so it is a required startup read, retains the current selfie send frequency such as `every_reply` or selected moments, and tells the agent to read `chat-selfie/send-flow.md` before any send
+27. create or update `TOOLS.md` so it retains the concrete paths and invocation timing for mood, send-flow-related entries, seed helpers, send routes, and adapters
+28. create or update `chat-selfie/send-flow.md` as the environment-specific runtime source of truth for future image sends, including current mood labels and when and why they should be used
+29. ask whether the agent should stop after the current setup step or keep executing autonomously beyond it
+30. persist the final setup summary into the target agent memory files
+31. create or update references to `docs/self-upgrade.md` in the runtime memory files when persona evolution is part of the long-term setup
+32. record the result into structured workspace artifacts
+33. run the final review checklist and only mark the skill usable when every required file exists, is wired correctly, and the configured routes pass honest preflight checks
+34. clearly mark which parts are ready now and which still require user action before selfie runtime can succeed
 
 ## Full-interaction rule
 
@@ -196,6 +199,8 @@ Before asking the user to choose a delivery route, explain the practical differe
 
 Say clearly that local framework delivery is the default choice, but Telegram is usually the safer option when the current framework does not send images reliably.
 
+Also explain that both official delivery routes can work with either real-time generation or fixed mood-asset mode, as long as the runtime can provide a valid local image path for the current mood.
+
 Reuse an existing tested image route when possible.
 
 ## Occasional delivery rule
@@ -222,6 +227,10 @@ The user should understand that mood means:
 - when mood is on, the same character can look shy, calm, playful, clingy, happy, tired, or otherwise appropriate to the moment
 
 The agent should normally recommend turning mood on, because emotional variation is one of the core parts of Chat Selfie.
+
+When the workspace uses fixed mood-asset mode, also explain that mood is the key used to select the local image asset that will be sent for each turn.
+
+When the workspace uses fixed mood-asset mode, the setup should also explain that the agent can collect those mood images directly from the user during setup, save them into the local workspace, and then write the saved paths into the mood mapping.
 
 If mood is enabled, also explain the difference between:
 - preset-driven mood: more stable, easier to control

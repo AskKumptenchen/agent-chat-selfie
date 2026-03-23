@@ -32,7 +32,7 @@ When the scheduled task or heartbeat trigger fires, the flow should be:
 2. inside `heartbeat.py`, resolve mood through `chat-selfie/mood.py`
 3. build a short heartbeat caption from persona and mood
 4. call `chat-selfie/send.py` with reason `heartbeat`
-5. let `send.py` generate the image and dispatch it through the configured delivery route
+5. let `send.py` resolve the active image source, either by generating a new image or reusing the local mood asset mapped to the current mood
 6. push the result to the configured heartbeat target
 
 ## Caption rule
@@ -68,6 +68,7 @@ The workspace config should make it possible to retain:
 - the heartbeat runtime reference doc
 - whether scheduler behavior was explained to the user
 - whether heartbeat should use mood
+- which image source mode is active: real-time generation or fixed mood asset
 - the heartbeat caption style
 - the heartbeat caption generator path
 - the heartbeat target kind
@@ -82,7 +83,9 @@ Heartbeat pushes should reuse the configured delivery route:
 - local framework delivery when that route is selected
 - Telegram API delivery when that route is selected
 
-The generated image should still be saved under `chat-selfie/selfies/` before delivery.
+When real-time generation is active, the generated image should still be saved under `chat-selfie/selfies/` before delivery.
+
+When fixed mood-asset mode is active, heartbeat pushes may reuse the configured local mood asset path directly.
 
 ## Failure rule
 

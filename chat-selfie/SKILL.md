@@ -1,6 +1,6 @@
 ---
 name: chat-selfie
-description: Give your AI Agent a face and a heart. Use AI image generation to let the agent proactively send emotional selfies that visualize its feelings during conversation.
+description: Give your AI Agent a face and a heart. Use AI image generation or mood-mapped local sticker assets to let the agent proactively send emotional selfies that visualize its feelings during conversation.
 metadata: {"openclaw":{"os":["win32","linux","darwin"]}}
 ---
 
@@ -8,11 +8,11 @@ metadata: {"openclaw":{"os":["win32","linux","darwin"]}}
 
 Give your AI Agent a face, and a heart that beats.
 
-Use this skill to enable AI-powered emotional expression. Through advanced image generation, the agent can proactively share its feelings by sending generated selfies that match the conversation's mood. Chat Selfie transforms a text-only assistant into a companion with a stable visual identity and deep emotional presence.
+Use this skill to enable AI-powered emotional expression. Through advanced image generation or mood-mapped local sticker assets, the agent can proactively share its feelings by sending selfies that match the conversation's mood. Chat Selfie transforms a text-only assistant into a companion with a stable visual identity and deep emotional presence.
 
 ## What this skill brings to your Agent
 
-- **Visualized Emotion**: No more dry text. Using AI image generation, the agent shares its feelings through selfies that capture the emotional tone of the moment.
+- **Visualized Emotion**: No more dry text. Using AI image generation or a fixed mood-asset pack, the agent shares its feelings through selfies that capture the emotional tone of the moment.
 - **Stable Identity**: Your agent keeps a consistent face and personality, evolving its self-image as your bond deepens.
 - **Heartbeat Presence**: The agent isn't just an "answer machine." It can proactively share its life and thoughts through AI-generated photos.
 - **Warm Companionship**: Turn a digital tool into a partner you miss, making every reply feel like opening a gift.
@@ -46,10 +46,10 @@ Use these local documents as the primary reference:
 - `docs/workspace-layout.md` for the expected local workspace structure
 - `docs/integration.md` for repository-documented integration guidance
 - `docs/self-repair.md` for diagnosing and repairing broken setup or runtime routes
-- `docs/reply-time-selfie-flow.md` for reply-time selfie behavior
+- `docs/reply-time-selfie-flow.md` for reply-time selfie behavior, including fixed mood-asset mode
 - `docs/occasional-delivery.md` for occasional delivery decisions
 - `docs/heartbeat-delivery.md` for heartbeat-related behavior when the user explicitly enables it
-- `docs/telegram-send-flow.md` for Telegram delivery details when that route is already configured
+- `docs/telegram-send-flow.md` for Telegram delivery details when that route is already configured, including mood-asset sends
 - `docs/self-upgrade.md` for long-term persona or mood evolution
 - `tools/README.md` and related files under `tools/` for repository-owned tool contracts
 - `examples/` for concrete examples that illustrate intended behavior
@@ -79,6 +79,8 @@ If the expected repository documents are not available in the current workspace,
 - Explain each step before asking for a choice.
 - Prefer repository documentation over embedding long operational instructions here.
 - Reuse an existing local image workflow when one is already working.
+- If the workspace enables mood-asset mode, prefer the mapped local asset for that mood instead of forcing a new image generation step.
+- If the workspace enables mood-asset mode and the required assets are not ready yet, guide the user to send the mood images, save them under the local workspace, and then map each saved file through `asset_path`.
 - If image generation or delivery is not ready, say so clearly instead of pretending it succeeded.
 - Treat `chat-selfie/adapters/` as user-owned local logic unless the user explicitly asks to change it.
 - Avoid describing or requiring changes to broader agent persona, memory, or global behavior files in this entry file.

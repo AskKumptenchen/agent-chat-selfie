@@ -62,6 +62,13 @@ Recommended structure:
 If generation is missing, keep guiding here until the generation path is truthfully decided.
 Do not jump ahead and call setup ready.
 
+If the user chooses fixed mood-asset mode instead of real-time generation, switch to a collection step:
+- explain that the agent can collect the mood images directly in chat
+- ask the user to send the images one by one or as a small batch
+- save them into the local workspace, such as `chat-selfie/stickers/`
+- record each saved file back into the matching mood entry through `asset_path`
+- only call the mood-asset setup ready after the saved files are actually present
+
 ## Step 4 — Delivery frequency template
 
 Explain this before asking.

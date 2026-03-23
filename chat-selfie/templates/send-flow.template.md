@@ -32,6 +32,7 @@ Runtime failures should consult `docs/self-repair.md` before claiming success, r
 - Mood entry: `chat-selfie/mood.py`
 - Generation entry: `chat-selfie/generate.py`
 - Telegram send entry when enabled: `chat-selfie/send_telegram.py`
+- Image source mode: `generate` or `mood_asset`
 
 ## Delivery Policy
 
@@ -59,7 +60,7 @@ Runtime failures should consult `docs/self-repair.md` before claiming success, r
 2. decide whether this turn should trigger Chat Selfie
 3. resolve mood through `chat-selfie/mood.py` when required
 4. call `chat-selfie/generate.py`
-5. save the image under `chat-selfie/selfies/`
+5. either save the generated image under `chat-selfie/selfies/` or reuse the local `asset_path` mapped to the resolved mood
 6. deliver through the configured route
 
 ### Heartbeat order
@@ -68,7 +69,7 @@ Runtime failures should consult `docs/self-repair.md` before claiming success, r
 2. resolve mood
 3. generate a short heartbeat caption
 4. call `chat-selfie/send.py`
-5. save the image under `chat-selfie/selfies/`
+5. either save the generated image under `chat-selfie/selfies/` or reuse the local `asset_path` mapped to the resolved mood
 6. push to the configured heartbeat target
 
 ## Mood Catalog
@@ -108,6 +109,7 @@ For each mood, record:
 - `chat-selfie/generate.py`:
 - `chat-selfie/send.py`:
 - `chat-selfie/send_telegram.py`:
+- mood asset mapping: `mood-pool.json -> moods.*.asset_path`
 - local adapters:
 
 ## Persistence Reminders

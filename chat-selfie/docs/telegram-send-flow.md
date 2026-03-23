@@ -11,7 +11,7 @@ Use this flow when all of these are true:
 1. the user has agreed to use the Telegram route
 2. `delivery.route = telegram_api`
 3. Telegram chat target and bot token configuration are ready
-4. the generation route can produce a saved local image file
+4. the active image source can provide a usable local image file, either from generation or from a mood-mapped asset
 
 This route is more stable than relying on every agent framework to support image sending in-session, but it requires Telegram-specific configuration.
 
@@ -36,7 +36,7 @@ The Telegram route should follow this order:
 1. call `chat-selfie/send.py`
 2. inside `send.py`, resolve mood through `chat-selfie/mood.py` when mood is enabled or an explicit mood id is provided
 3. inside `send.py`, call `chat-selfie/generate.py`
-4. `generate.py` produces one saved image under `chat-selfie/selfies/`
+4. `generate.py` either produces one saved image under `chat-selfie/selfies/` or returns the local image already mapped to the resolved mood
 5. inside `send.py`, call `chat-selfie/send_telegram.py`
 6. `send_telegram.py` sends the image and the final reply text together through Telegram Bot API
 7. once Telegram sending succeeds, the current reply is considered finished
@@ -60,24 +60,30 @@ The workspace config should make it possible to resolve:
 - `workspace.generate_tool_path`
 - `workspace.telegram_send_tool_path`
 - `delivery.route`
+- `generation.image_source`
 - `delivery.telegram.chat_id` or `delivery.telegram.chat_id_env`
 - `delivery.telegram.bot_token_env`
 - `delivery.telegram.api_base_env`
 - `delivery.telegram.parse_mode`
 - `delivery.telegram.consume_final_reply`
 
+When `generation.image_source = mood_asset`, the workspace should also make it possible to resolve the current mood entry and its `asset_path`.
+
 ## Image path rule
 
-When image generation is enabled for the Telegram route, the generated image should be saved under `chat-selfie/selfies/`.
+When real-time image generation is enabled for the Telegram route, the generated image should be saved under `chat-selfie/selfies/`.
 
 The generation step should not save output into unrelated temporary folders unless it then moves or copies the final deliverable into `chat-selfie/selfies/` before Telegram delivery.
+
+When fixed mood-asset mode is enabled, Telegram delivery may reuse the mapped local asset path directly instead of generating a new file for that turn.
 
 ## Failure rule
 
 If one required part is missing:
 
 - missing Telegram configuration: ask the user to finish Telegram setup
-- missing generation route: repair generation setup before using Telegram delivery
+- missing generation route in real-time mode: repair generation setup before using Telegram delivery
+- missing mood asset path in fixed mood-asset mode: repair the mood asset mapping before using Telegram delivery
 - missing saved image path: do not pretend Telegram delivery succeeded
 
 If the Telegram route cannot complete honestly, the agent should either:

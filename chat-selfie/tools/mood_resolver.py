@@ -60,6 +60,7 @@ def resolve_mood(
         "scene": prompt_parts["scene"],
         "action": prompt_parts["action"],
         "prompt_parts": prompt_parts,
+        "asset_path": mood_entry.get("asset_path") or mood_entry.get("image_path"),
         "source": source,
         "resolved_at": resolved_at,
         "record_path": str(log_path),

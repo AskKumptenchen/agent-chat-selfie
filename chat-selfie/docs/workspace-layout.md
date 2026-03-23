@@ -34,6 +34,7 @@ chat-selfie/
   send_telegram.py
   status.md
   portrait/
+  stickers/
   selfies/
   adapters/
     README.md
@@ -48,6 +49,9 @@ chat-selfie/
   repair-log.jsonl
   portrait/
     agent_profile.png
+  stickers/
+    calm.png
+    focused.png
   adapters/
     mood/
     generation/
@@ -103,7 +107,7 @@ Runtime self-checks may also record repair attempts, degradation decisions, and 
 - `chat-selfie/adapters/` is user-owned and may contain private adapter logic.
 - repository-owned reusable tool contracts stay under the installed skill package `tools/`.
 - repository-owned fixed logic such as `tools/mood_resolver.py` stays in the installed skill package.
-- workspace-local `mood.py`, `mood-pool.json`, and `chat-selfie.json` should be copied or created during initialization and then customized locally.
+- workspace-local `mood.py`, `mood-pool.json`, `chat-selfie.json`, and any user-provided mood assets saved under `chat-selfie/stickers/` should be copied or created during initialization and then customized locally.
 
 ## Update rule
 

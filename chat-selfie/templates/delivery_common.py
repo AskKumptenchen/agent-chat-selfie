@@ -52,6 +52,24 @@ def resolve_generation_config(config: dict[str, Any]) -> dict[str, Any]:
     return generation_cfg if isinstance(generation_cfg, dict) else {}
 
 
+def resolve_generation_source_mode(config: dict[str, Any]) -> str:
+    generation_cfg = resolve_generation_config(config)
+    raw_mode = generation_cfg.get("image_source")
+    if not isinstance(raw_mode, str) or not raw_mode.strip():
+        return "generate"
+    normalized = raw_mode.strip().lower().replace(" ", "_")
+    if normalized in {"generate", "generated", "generation"}:
+        return "generate"
+    if normalized in {"mood_asset", "sticker", "sticker_mode", "mood_image"}:
+        return "mood_asset"
+    return "generate"
+
+
+def resolve_generation_fallback_enabled(config: dict[str, Any]) -> bool:
+    generation_cfg = resolve_generation_config(config)
+    return bool(generation_cfg.get("fallback_to_generation", False))
+
+
 def resolve_delivery_config(config: dict[str, Any]) -> dict[str, Any]:
     delivery_cfg = config.get("delivery", {})
     return delivery_cfg if isinstance(delivery_cfg, dict) else {}
@@ -115,6 +133,15 @@ def resolve_selfies_dir(config_path: Path, config: dict[str, Any]) -> Path:
     generation_cfg = resolve_generation_config(config)
     raw_path = workspace_cfg.get("selfies_path") or generation_cfg.get("output_dir") or "./selfies"
     return resolve_workspace_path(config_path.parent, raw_path)
+
+
+def resolve_mood_pool_path(config_path: Path, config: dict[str, Any]) -> Path:
+    mood_cfg = resolve_mood_config(config)
+    return resolve_workspace_path(
+        config_path.parent,
+        mood_cfg.get("pool_path"),
+        "./mood-pool.json",
+    )
 
 
 def ensure_directory(path: Path) -> Path:
@@ -251,6 +278,7 @@ def build_runtime_result(
             "delivery_route": delivery_cfg.get("route"),
             "generation_method": generation_cfg.get("method"),
             "generation_provider": generation_cfg.get("provider"),
+            "image_source_mode": resolve_generation_source_mode(config),
             "self_repair_enabled": resolve_self_repair_config(config).get("enabled"),
         },
         "preflight": preflight,
@@ -314,7 +342,9 @@ def validate_runtime_workspace(
     workspace_cfg = resolve_workspace_config(config)
     delivery_cfg = resolve_delivery_config(config)
     generation_cfg = resolve_generation_config(config)
+    generation_source_mode = resolve_generation_source_mode(config)
     heartbeat_cfg = resolve_heartbeat_config(config)
+    mood_pool_path = resolve_mood_pool_path(config_path, config)
 
     auto_repairs: list[dict[str, Any]] = []
     user_actions: list[dict[str, Any]] = []
@@ -383,7 +413,17 @@ def validate_runtime_workspace(
         generation_cfg.get("adapter_path"),
         "./adapters/generation/generate_adapter.py",
     )
-    generation_route_ready = generation_method == "system_existing" or generation_adapter_path.exists()
+    if generation_source_mode == "mood_asset":
+        generation_route_ready = mood_pool_path.exists()
+        if not generation_route_ready:
+            add_user_action(
+                user_actions,
+                code="CREATE_MOOD_POOL",
+                message="Mood asset mode requires a readable mood pool with asset_path values before delivery can succeed.",
+                path=str(mood_pool_path),
+            )
+    else:
+        generation_route_ready = generation_method == "system_existing" or generation_adapter_path.exists()
 
     delivery_route = str(delivery_cfg.get("route") or "local_framework")
     telegram_runtime = inspect_telegram_runtime(config)
@@ -406,7 +446,9 @@ def validate_runtime_workspace(
         route_ready = True
 
     if startup_record_ready and isinstance(startup_record, dict):
-        if startup_record.get("generation_capability_available") is False or startup_record.get("backend_ready") is False:
+        if generation_source_mode != "mood_asset" and (
+            startup_record.get("generation_capability_available") is False or startup_record.get("backend_ready") is False
+        ):
             generation_route_ready = False
             add_user_action(
                 user_actions,
@@ -441,6 +483,7 @@ def validate_runtime_workspace(
             "send_flow_ready": send_flow_path.exists(),
             "portrait_ready": portrait_known,
             "generation_ready": generation_route_ready,
+            "image_source_mode": generation_source_mode,
             "route_ready": route_ready,
             "heartbeat_ready": heartbeat_ready,
             "reason": normalize_reason(reason),
@@ -661,6 +704,9 @@ def build_generation_request(
         "output_path": str(output_path),
         "generation_method": generation_cfg.get("method"),
         "generation_provider": generation_cfg.get("provider"),
+        "image_source_mode": resolve_generation_source_mode(config),
+        "fallback_to_generation": resolve_generation_fallback_enabled(config),
+        "mood_asset_path": (mood_data or {}).get("asset_path"),
     }
 
 
@@ -676,6 +722,7 @@ def assess_generation_result(
     image_path = Path(str(raw_image_path)).resolve() if isinstance(raw_image_path, str) and raw_image_path.strip() else None
     desired_output_path = desired_output_path.resolve()
     handoff_required = bool(result.get("handoff_required"))
+    preserve_image_path = bool(result.get("preserve_image_path"))
 
     if handoff_required:
         normalized = dict(result)
@@ -702,7 +749,7 @@ def assess_generation_result(
         success_flag = result.get("ok")
     image_exists = image_path.exists() if image_path else False
 
-    if image_exists and image_path is not None and image_path != desired_output_path:
+    if image_exists and image_path is not None and image_path != desired_output_path and not preserve_image_path:
         ensure_directory(desired_output_path.parent)
         shutil.copy2(image_path, desired_output_path)
         image_path = desired_output_path
@@ -722,6 +769,7 @@ def assess_generation_result(
     normalized["image_path"] = str(image_path) if image_path else None
     normalized["desired_output_path"] = str(desired_output_path)
     normalized["image_exists"] = image_exists
+    normalized["preserve_image_path"] = preserve_image_path
     normalized["ok"] = bool(ok and image_exists)
 
     if normalized["ok"]:

@@ -156,6 +156,7 @@ def main() -> None:
         "mood_label": result["mood_label"],
         "reply_style_prompt": result["reply_style_prompt"],
         "state_hint": result["state_hint"],
+        "asset_path": result.get("asset_path"),
         "camera": result["camera"],
         "expression": result["expression"],
         "scene": result["scene"],

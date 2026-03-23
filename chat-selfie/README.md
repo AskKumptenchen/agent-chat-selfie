@@ -25,6 +25,7 @@ That local directory should hold:
 
 - workspace state such as `startup.answers.json`, `startup.record.json`, `chat-selfie.json`, `send-flow.md`, and `status.md`
 - the persisted portrait reference image under `chat-selfie/portrait/`
+- user-provided mood asset images saved under `chat-selfie/stickers/` when fixed mood-asset mode is used
 - generated images under `chat-selfie/selfies/`
 - user-owned adapters under `chat-selfie/adapters/`
 
@@ -38,14 +39,16 @@ When the agent sees this skill for the first time, it should:
 2. inspect whether stable persona files already exist
 3. ask whether the portrait should come from a saved reference image or a text-generated base portrait
 4. check whether the current agent already has a working image-generation route
-5. create or update the local `chat-selfie/` directory
-6. if no working route exists, explain backend or adapter setup before asking for provider choices
-7. ask when selfies should appear in chat
-8. explain delivery route choices, including the Telegram route when relevant
-9. explain occasional limits or heartbeat settings when those modes are selected
-10. create or update `SOUL.md`, `AGENTS.md`, `TOOLS.md`, and `chat-selfie/send-flow.md` so runtime behavior, tool locations, personality markers, and send rules are all aligned
-11. persist the result into structured workspace artifacts and runtime memory files
-12. run the final startup review and only treat the skill as usable when all required files exist and the configured routes pass honest preflight
+5. ask whether reply-time and heartbeat sends should use real-time generation or a fixed mood-asset pack
+6. create or update the local `chat-selfie/` directory
+7. if fixed mood-asset mode is chosen, guide the user to send the mood images, save them under the local workspace, and record the saved `asset_path` values
+8. if no working route exists and the user still wants real-time generation, explain backend or adapter setup before asking for provider choices
+9. ask when selfies should appear in chat
+10. explain delivery route choices, including the Telegram route when relevant
+11. explain occasional limits or heartbeat settings when those modes are selected
+12. create or update `SOUL.md`, `AGENTS.md`, `TOOLS.md`, and `chat-selfie/send-flow.md` so runtime behavior, tool locations, personality markers, and send rules are all aligned
+13. persist the result into structured workspace artifacts and runtime memory files
+14. run the final startup review and only treat the skill as usable when all required files exist and the configured routes pass honest preflight
 
 The detailed startup contract lives in `docs/startup.md`.
 
@@ -88,6 +91,11 @@ The current skill package supports these runtime patterns:
 - `occasional` for context-triggered sends with configurable rate limiting
 - `heartbeat` for proactive pushes triggered by scheduled tasks or another heartbeat-capable mechanism
 
+Within those runtime patterns, the active image source may be either:
+
+- real-time generation
+- fixed mood-asset mode that reuses a workspace-local image previously saved from user-provided mood assets and mapped to the resolved mood
+
 The corresponding runtime docs are:
 
 - `docs/reply-time-selfie-flow.md`
@@ -103,10 +111,10 @@ For the `every_reply` route, the standard per-turn behavior is:
 1. user sends a message
 2. agent reasons and handles the message normally
 3. before the final reply is emitted, the agent resolves mood when enabled
-4. the agent builds an image prompt from mood, persona, and context
-5. the agent hands prompt and reply context to the selected delivery route
+4. the agent either builds an image prompt from mood, persona, and context or selects the mapped local mood asset
+5. the agent hands the resolved image path and reply context to the selected delivery route
 
-The detailed flow, including async send, sync send, and sync send using an existing image capability, is documented in `docs/reply-time-selfie-flow.md`.
+The detailed flow, including async send, sync send, sync send using an existing image capability, and fixed mood-asset mode, is documented in `docs/reply-time-selfie-flow.md`.
 
 ## Runtime memory and send flow
 
@@ -174,6 +182,7 @@ The current ClawHub package is documentation- and template-driven:
 - tool-contract guidance
 - persona and delivery integration guidance
 - runtime mode docs for reply-time, occasional, heartbeat, and Telegram delivery
+- runtime support for both real-time generation and fixed mood-asset delivery
 - workspace templates for mood, generation, send, Telegram send, heartbeat, and send-flow
 - portable example artifacts
 

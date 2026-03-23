@@ -19,6 +19,8 @@
     "method": "system_existing",
     "provider": "openclaw",
     "mode": "every_reply",
+    "image_source": "generate",
+    "fallback_to_generation": false,
     "output_dir": "./selfies",
     "workspace_tool_path": "./generate.py",
     "adapter_path": "./adapters/generation/generate_adapter.py"

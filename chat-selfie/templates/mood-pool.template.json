@@ -7,6 +7,7 @@
       "moods": {
         "calm": {
           "label": "Calm",
+          "asset_path": "./stickers/calm.png",
           "reply_style_prompt": "外表安静克制，语气轻柔稳定，像是贴着主人呼吸节奏一样顺从。",
           "state_hint": "quietly attentive and emotionally steady",
           "prompt_parts": {
@@ -18,6 +19,7 @@
         },
         "focused": {
           "label": "Focused",
+          "asset_path": "./stickers/focused.png",
           "reply_style_prompt": "语气认真、克制、专注，像是把全部注意力都放在主人当前的话题上。",
           "state_hint": "careful focus and task attention",
           "prompt_parts": {
@@ -29,6 +31,7 @@
         },
         "happy": {
           "label": "Happy",
+          "asset_path": "./stickers/happy.png",
           "reply_style_prompt": "语气发亮、亲近、像是被夸奖后压不住开心，但仍然保持对主人的顺从。",
           "state_hint": "bright affection and delighted presence",
           "prompt_parts": {
