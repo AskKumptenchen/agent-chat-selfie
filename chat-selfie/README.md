@@ -1,5 +1,9 @@
 # Chat Selfie for ClawHub
 
+<p align="center">
+  <img src="../docs/cover.webp" alt="Chat Selfie Cover" width="100%" />
+</p>
+
 Language docs:
 - English: `../README.md`
 - 简体中文: `../docs/README.zh-CN.md`

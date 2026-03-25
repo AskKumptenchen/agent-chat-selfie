@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../docs/cover.webp" alt="Chat Selfie Cover" width="100%" />
+</p>
+
 <h1 align="center">🤳 Chat Selfie</h1>
 
 <p align="center">
