@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="../docs/cover.webp" alt="Chat Selfie Cover" width="100%" />
-</p>
-
 <h1 align="center">🤳 Chat Selfie</h1>
 
 <p align="center">
@@ -20,6 +16,10 @@
   <a href="#design-philosophy">设计理念</a> ·
   <a href="../README.md">English</a> ·
   <a href="./README.ja.md">日本語</a>
+</p>
+
+<p align="center">
+  <img src="../docs/cover.webp" alt="Chat Selfie Cover" width="100%" />
 </p>
 
 ## 效果演示 👀

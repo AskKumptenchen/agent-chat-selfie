@@ -1,13 +1,13 @@
 # Chat Selfie for ClawHub
 
-<p align="center">
-  <img src="../docs/cover.webp" alt="Chat Selfie Cover" width="100%" />
-</p>
-
 Language docs:
 - English: `../README.md`
 - 简体中文: `../docs/README.zh-CN.md`
 - 日本語: `../docs/README.ja.md`
+
+<p align="center">
+  <img src="../docs/cover.webp" alt="Chat Selfie Cover" width="100%" />
+</p>
 
 `chat-selfie` is the publishable ClawHub skill package for this repository. Its job is to teach an agent how to initialize and maintain a local `chat-selfie/` workspace, not to ship one fixed image-generation plugin.
 
