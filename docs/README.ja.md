@@ -18,6 +18,10 @@
   <a href="./README.zh-CN.md">简体中文</a>
 </p>
 
+<p align="center">
+  <img src="./cover.webp" alt="Chat Selfie Cover" width="100%" />
+</p>
+
 ## デモ 👀
 
 **💫 目覚め：ただの起動ではなく、TA の“登場”。**
